@@ -70,10 +70,11 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
         </main>
         <Footer />
         <script>
-            if (window.netlifyIdentity) {
-                window.netlifyIdentity.on("init", (user) => {
+            const netlifyIdentity = window.netlifyIdentity;
+            if (netlifyIdentity) {
+                netlifyIdentity.on("init", (user) => {
                     if (!user) {
-                        window.netlifyIdentity.on("login", () => {
+                        netlifyIdentity.on("login", () => {
                             document.location.href = "/admin/";
                         });
                     }
