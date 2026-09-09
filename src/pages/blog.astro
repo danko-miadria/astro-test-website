@@ -1,10 +1,155 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const posts = Object.entries(
+    import.meta.glob("../posts/blog/*.md", { eager: true }),
+).map(([path, module]) => {
+    const post = module as {
+        frontmatter: {
+            title: string;
+            date: string | Date;
+            thumbnail?: string;
+            rating?: number;
+        };
+    };
+
+    return {
+        slug: path.split("/").pop()?.replace(/\.md$/, "") ?? "post",
+        ...post.frontmatter,
+    };
+});
+
+const imageUrls = import.meta.glob("../assets/images/*", {
+    eager: true,
+    import: "default",
+}) as Record<string, string | { src: string }>;
+
+const getThumbnail = (thumbnail?: string) => {
+    if (!thumbnail) return undefined;
+
+    const assetPath = thumbnail.replace(/^\/src\//, "../");
+    const asset = imageUrls[assetPath];
+    return typeof asset === "string" ? asset : asset?.src;
+};
+
+posts.sort((first, second) => {
+    return new Date(second.date).getTime() - new Date(first.date).getTime();
+});
 ---
 
 <Layout>
-    <h1>Blog</h1>
+    <section class="blog-heading">
+        <p class="eyebrow">Journal</p>
+        <h1>Blog</h1>
+        <p>Notes, experiments, and stories from the build.</p>
+    </section>
+
+    <section class="post-grid" aria-label="Blog posts">
+        {
+            posts.map((post) => (
+                <article class="post-card">
+                    {getThumbnail(post.thumbnail) && (
+                        <img
+                            src={getThumbnail(post.thumbnail)}
+                            alt={post.title}
+                        />
+                    )}
+                    <div class="post-card-content">
+                        <p class="post-date">
+                            {new Date(post.date).toLocaleDateString("en-US", {
+                                dateStyle: "medium",
+                            })}
+                        </p>
+                        <h2>{post.title}</h2>
+                        {post.rating && (
+                            <p class="rating">Rating {post.rating}/5</p>
+                        )}
+                        <a href={`/blog/${post.slug}`}>
+                            Read post <span aria-hidden="true">&#8594;</span>
+                        </a>
+                    </div>
+                </article>
+            ))
+        }
+    </section>
 </Layout>
+
+<style>
+    .blog-heading {
+        margin-bottom: 48px;
+    }
+
+    .eyebrow,
+    .post-date,
+    .rating {
+        font-family: Arial, sans-serif;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .eyebrow {
+        margin: 0 0 14px;
+        opacity: 0.65;
+    }
+
+    .blog-heading :global(h1) {
+        margin-bottom: 16px;
+    }
+
+    .blog-heading :global(p:last-child) {
+        margin: 0;
+    }
+
+    .post-grid {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        max-width: 1000px;
+    }
+
+    .post-card {
+        background: rgba(255, 255, 255, 0.68);
+        border: 1px solid rgba(23, 25, 30, 0.12);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .post-card img {
+        aspect-ratio: 16 / 9;
+        display: block;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .post-card-content {
+        padding: 22px;
+    }
+
+    .post-date,
+    .rating {
+        margin: 0 0 12px;
+        opacity: 0.65;
+    }
+
+    .post-card :global(h2) {
+        font-size: 1.7rem;
+        margin: 0 0 18px;
+    }
+
+    .rating {
+        margin-bottom: 20px;
+    }
+
+    .post-card a {
+        color: #17191e;
+        font-family: Arial, sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .post-card a:hover {
+        text-decoration: underline;
+    }
+</style>
