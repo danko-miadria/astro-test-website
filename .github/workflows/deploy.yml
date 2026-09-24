@@ -1,4 +1,4 @@
-name: Build and Deploy to Cloud Run via GHCR
+name: Build and Deploy Static Site to Cloud Run via GHCR
 
 on:
     push:
@@ -11,7 +11,7 @@ permissions:
 
 env:
     SERVICE_NAME: astro-static-website
-    REGION: europe-west1 # Change to your GCP region
+    REGION: europe-west1
 
 jobs:
     deploy:
@@ -29,12 +29,15 @@ jobs:
 
             - name: Build and Push Docker Image
               run: |
-                  # Convert repository name to lowercase for Docker naming standards
+                  # Convert repository name to lowercase for Docker standard compliance
                   REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
                   IMAGE_NAME="ghcr.io/${REPO_LOWER}:latest"
 
                   docker build -t $IMAGE_NAME .
                   docker push $IMAGE_NAME
+
+                  # Store the image name for the deployment step
+                  echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
             - name: Google Auth
               uses: google-github-actions/auth@v2
@@ -46,5 +49,5 @@ jobs:
               with:
                   service: ${{ env.SERVICE_NAME }}
                   region: ${{ env.REGION }}
-                  image: ghcr.io/${{ github.repository }}:latest
+                  image: ${{ env.IMAGE_NAME }}
                   flags: "--allow-unauthenticated"
