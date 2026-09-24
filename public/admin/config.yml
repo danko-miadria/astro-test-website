@@ -29,7 +29,7 @@ site_url: https://danko-miadria.github.io/astro-test-website
 
 # REQUIRED: Image and Media upload settings
 media_folder: "public/uploads"
-public_folder: "/astro-test-website/uploads"
+public_folder: "/uploads"
 
 # REQUIRED: Content collections configuration
 collections:

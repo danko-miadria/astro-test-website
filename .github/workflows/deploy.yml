@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy to Cloud Run via GHCR
 
 on:
     push:
@@ -7,32 +7,44 @@ on:
 
 permissions:
     contents: read
-    pages: write
-    id-token: write
+    packages: write
 
-concurrency:
-    group: "pages"
-    cancel-in-progress: false
+env:
+    SERVICE_NAME: astro-static-website
+    REGION: europe-west1 # Change to your GCP region
 
 jobs:
-    build:
+    deploy:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout repository
+            - name: Checkout Code
               uses: actions/checkout@v4
 
-            - name: Install, build, and upload site
-              uses: withastro/action@v6
+            - name: Log in to GitHub Container Registry
+              uses: docker/login-action@v3
               with:
-                  node-version: 22
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
 
-    deploy:
-        needs: build
-        runs-on: ubuntu-latest
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
-        steps:
-            - name: Deploy to GitHub Pages
-              id: deployment
-              uses: actions/deploy-pages@v4
+            - name: Build and Push Docker Image
+              run: |
+                  # Convert repository name to lowercase for Docker naming standards
+                  REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+                  IMAGE_NAME="ghcr.io/${REPO_LOWER}:latest"
+
+                  docker build -t $IMAGE_NAME .
+                  docker push $IMAGE_NAME
+
+            - name: Google Auth
+              uses: google-github-actions/auth@v2
+              with:
+                  credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+            - name: Deploy to Cloud Run
+              uses: google-github-actions/deploy-cloudrun@v2
+              with:
+                  service: ${{ env.SERVICE_NAME }}
+                  region: ${{ env.REGION }}
+                  image: ghcr.io/${{ github.repository }}:latest
+                  flags: "--allow-unauthenticated"
