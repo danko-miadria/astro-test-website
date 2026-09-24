@@ -11,8 +11,6 @@ import astroBackground from "../assets/background.svg";
         <link rel="icon" href="/favicon.ico" />
         <meta name="generator" content={Astro.generator} />
         <title>Astro Basics</title>
-        <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"
-        ></script>
     </head>
     <body style={`background-image: url("${astroBackground.src}")`}>
         <header class="site-header">
@@ -37,17 +35,6 @@ import astroBackground from "../assets/background.svg";
                 <a href="https://astro.build/chat">Astro Discord server</a>.
             </p>
         </footer>
-        <script>
-            if (window.netlifyIdentity) {
-                window.netlifyIdentity.on("init", (user) => {
-                    if (!user) {
-                        window.netlifyIdentity.on("login", () => {
-                            document.location.href = "/admin/";
-                        });
-                    }
-                });
-            }
-        </script>
     </body>
 </html>
 
