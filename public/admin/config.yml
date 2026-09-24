@@ -2,7 +2,6 @@
 backend:
     name: git-gateway
     repo: danko-miadria/astro-test-website
-    branch: main
     auth_type: pkce
     base_url: https://auth.decapbridge.com
     auth_endpoint: /sites/b2eec2dd-cdd9-47c2-a1c3-27aed9605249/pkce
