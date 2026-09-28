@@ -5,10 +5,13 @@ backend:
     base_url: https://sveltia-cms-auth.danko-0b7.workers.dev
     auth_endpoint: /auth
 
-# REQUIRED: Image and Media upload settings
-media_folder: "src/assets/images/"
+# Where Decap CMS saves uploaded images in your GitHub repo
+media_folder: "src/assets/images"
 
-# REQUIRED: Content collections configuration
+# How the image path is written inside the Markdown frontmatter/body for Astro
+public_folder: "../../assets/images"
+
+# Content collections configuration
 collections:
     - name: "blog"
       label: "Blog Posts"
