@@ -2,6 +2,8 @@ backend:
     name: github
     repo: danko-miadria/astro-test-website
     branch: master
+    base_url: https://sveltia-cms-auth.danko-0b7.workers.dev
+    auth_endpoint: /auth
 
 # REQUIRED: Image and Media upload settings
 media_folder: "public/uploads"
