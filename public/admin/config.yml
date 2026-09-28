@@ -6,14 +6,13 @@ backend:
     auth_endpoint: /auth
 
 # REQUIRED: Image and Media upload settings
-media_folder: "public/uploads"
-public_folder: "/uploads"
+media_folder: "src/assets/images/"
 
 # REQUIRED: Content collections configuration
 collections:
     - name: "blog"
       label: "Blog Posts"
-      folder: "src/content/blog"
+      folder: "src/posts/blog"
       create: true
       slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
       fields:
@@ -32,3 +31,9 @@ collections:
                 required: false,
             }
           - { label: "Body", name: "body", widget: "markdown" }
+          - {
+                label: "Rating",
+                name: "rating",
+                widget: "number",
+                required: false,
+            }
